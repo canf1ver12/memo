@@ -10,3 +10,31 @@
 # 3. create_memo: 建立一筆新備忘錄並存入資料庫
 # 4. update_memo: 部分更新備忘錄內容 (PATCH)
 # 5. delete_memo: 刪除指定的備忘錄
+
+from sqlalchemy.orm import Session
+from app.models.memo import Memo
+from app.schemas.memo import MemoCreate
+
+
+def create_memo(db: Session, memo_in: MemoCreate) -> Memo:
+    data = memo_in.model_dump()
+    memo = Memo(**data)
+    db.add(memo)
+    db.commit()
+    db.refresh(memo)
+    return memo
+
+
+def get_memo_by_id(db: Session, memo_id: int) -> Memo | None:
+    memo = db.get(Memo, memo_id)
+    return memo
+
+
+def delete_memo(db: Session, memo_id: int) -> bool:
+    be_deleted_memo = get_memo_by_id(db, memo_id)
+    if be_deleted_memo is None:
+        return False
+
+    db.delete(be_deleted_memo)
+    db.commit()
+    return True
