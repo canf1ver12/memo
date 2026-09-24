@@ -10,3 +10,25 @@
 # 3. MemoUpdate: 部分更新備忘錄時的 Request Body 資料模型（所有欄位皆應為 Optional）
 # 4. MemoResponse: 單筆備忘錄的 API Response 資料模型（需設定 ConfigDict(from_attributes=True)）
 # 5. MemoListResponse: 多筆清單與分頁的回應資料模型（包含 total 總筆數與 items 列表）
+from datetime import datetime
+from pydantic import BaseModel, Field, ConfigDict
+
+
+class MemoBase(BaseModel):
+    title: str = Field(
+        ..., min_length=1, max_length=100, description="title of the memo"
+    )
+    content: str | None = Field(None, description="content of the memo")
+    priority: int = Field(default=3, ge=1, le=5)
+    is_completed: bool = False
+
+
+class MemoCreate(MemoBase):
+    pass
+
+
+class MemoResponse(MemoBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    created_at: datetime
+    updated_at: datetime
