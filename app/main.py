@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncGenerator
 from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
@@ -66,3 +68,8 @@ def health_check(db: Session = Depends(get_db)) -> dict:
 
 # 掛載 API v1 路由
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# 掛載前端靜態頁面（http://localhost:8000/app/）
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+if FRONTEND_DIR.is_dir():
+    app.mount("/app", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")

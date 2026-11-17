@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>政大通備忘錄</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <h1>政大通備忘錄</h1>
+      <span id="health" class="health" title="後端連線狀態">檢查中…</span>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2 id="form-title">新增備忘錄</h2>
+        <form id="memo-form" autocomplete="off">
+          <input type="hidden" id="memo-id" />
+          <label>
+            標題
+            <input id="title" type="text" maxlength="100" required placeholder="要做什麼？" />
+          </label>
+          <label>
+            內容
+            <textarea id="content" rows="3" placeholder="補充說明（選填）"></textarea>
+          </label>
+          <div class="row">
+            <label class="grow">
+              優先順序
+              <select id="priority">
+                <option value="1">1 · 低</option>
+                <option value="2">2</option>
+                <option value="3" selected>3 · 中</option>
+                <option value="4">4</option>
+                <option value="5">5 · 高</option>
+              </select>
+            </label>
+            <label class="check">
+              <input id="is-completed" type="checkbox" />
+              已完成
+            </label>
+          </div>
+          <p id="form-error" class="error" hidden></p>
+          <div class="actions">
+            <button type="submit" id="submit-btn" class="primary">新增</button>
+            <button type="button" id="cancel-btn" hidden>取消編輯</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="toolbar">
+          <input id="search" type="search" placeholder="搜尋標題或內容…" />
+          <select id="filter">
+            <option value="">全部</option>
+            <option value="false">未完成</option>
+            <option value="true">已完成</option>
+          </select>
+        </div>
+
+        <p id="list-error" class="error" hidden></p>
+        <ul id="memo-list" class="memo-list"></ul>
+        <p id="empty" class="empty" hidden>目前沒有備忘錄</p>
+
+        <nav class="pager">
+          <button id="prev-btn" type="button">上一頁</button>
+          <span id="page-info"></span>
+          <button id="next-btn" type="button">下一頁</button>
+        </nav>
+      </section>
+    </main>
+
+    <template id="memo-item">
+      <li class="memo">
+        <input class="toggle" type="checkbox" aria-label="切換完成狀態" />
+        <div class="body">
+          <div class="head">
+            <span class="title"></span>
+            <span class="badge"></span>
+          </div>
+          <p class="content"></p>
+          <time class="meta"></time>
+        </div>
+        <div class="ops">
+          <button type="button" class="edit">編輯</button>
+          <button type="button" class="delete danger">刪除</button>
+        </div>
+      </li>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
