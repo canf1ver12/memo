@@ -1,86 +1,82 @@
-# NCCUpass Memo Service (政大通備忘錄系統 API) 🚀
+# Memo Service
 
-歡迎來到 **國立政治大學 政大通（NCCUpass）** 後端團隊！
-這是一個專門為後端新人打造的 Onboarding 實戰任務基底專案（Starter Template）。
+一個以 FastAPI 實作的備忘錄 RESTful API，附帶一個免建置的網頁前端。
 
-本專案已經預先為你配置好了 **FastAPI 應用骨架、SQLAlchemy 2.0 ORM、Pydantic 設定管理、SQLite In-Memory 測試環境** 等基礎設施。你的任務是專注於實作與完善 **Pydantic Schemas、CRUD 資料庫存取層、API 路由端點與自動化測試案例**。
+- 後端：建立、查詢、部分更新、刪除備忘錄，列表支援分頁、完成狀態篩選與關鍵字搜尋
+- 前端：純 HTML/CSS/JS，由 FastAPI 直接掛載，啟動後端即可使用
+- 測試：pytest 搭配 SQLite in-memory 資料庫，每個測試自動隔離
 
 ---
 
-## 🛠 技術棧規格
+## 技術棧
 
 - **語言**：Python 3.11+
 - **Web 框架**：FastAPI >= 0.110.0
 - **ASGI 伺服器**：Uvicorn
-- **ORM / 資料庫**：SQLAlchemy 2.0+ (Mapped Declarative)
+- **ORM**：SQLAlchemy 2.0+（Mapped Declarative）
 - **資料庫**：
   - 開發環境：SQLite（開箱即用）
-  - 測試環境：SQLite In-Memory（自動隔離）
-- **資料驗證與設定**：Pydantic v2 + Pydantic Settings
-- **測試框架**：pytest, httpx
+  - 測試環境：SQLite in-memory（自動隔離）
+- **資料驗證與設定**：Pydantic v2 + pydantic-settings
+- **測試**：pytest、httpx
+- **前端**：HTML、CSS、JavaScript（無框架、無建置流程）
 
 ---
 
-## 📁 專案目錄架構
+## 專案結構
 
 ```text
-nccupass-memo-service/
+memo/
 ├── .env.example             # 環境變數設定範例
-├── .gitignore               # Git 忽略檔案清單
-├── requirements.txt         # 專案套件相依清單
-├── README.md                # 專案說明與任務指引文件
+├── .gitignore
+├── requirements.txt         # Python 套件相依清單
+├── README.md
 ├── app/
-│   ├── __init__.py
-│   ├── main.py              # FastAPI 實例、生命週期、路由註冊、Health check
+│   ├── main.py              # FastAPI 實例、生命週期、路由註冊、health check、前端掛載
 │   ├── database.py          # SQLAlchemy Engine 與 SessionLocal
 │   ├── core/
-│   │   ├── __init__.py
-│   │   └── config.py        # Settings 類別 (讀取 DATABASE_URL, API_V1_STR 等)
+│   │   └── config.py        # Settings（讀取 DATABASE_URL、API_V1_STR 等）
 │   ├── api/
-│   │   ├── __init__.py
-│   │   ├── deps.py          # get_db 依賴注入項
+│   │   ├── deps.py          # get_db dependency
 │   │   └── v1/
-│   │       ├── __init__.py
-│   │       ├── api.py       # 整合所有 v1 模組路由
+│   │       ├── api.py       # 整合 v1 路由
 │   │       └── endpoints/
-│   │           ├── __init__.py
-│   │           └── memos.py # 備忘錄 API 路由端點
+│   │           └── memos.py # 備忘錄 API endpoints
 │   ├── models/
-│   │   ├── __init__.py
 │   │   ├── base.py          # SQLAlchemy Declarative Base
-│   │   └── memo.py          # Memo SQLAlchemy ORM 資料庫模型
+│   │   └── memo.py          # Memo ORM model
 │   ├── schemas/
-│   │   ├── __init__.py
-│   │   └── memo.py          # Pydantic 資料驗證與轉換模型
+│   │   └── memo.py          # Pydantic request / response schemas
 │   └── crud/
-│       ├── __init__.py
-│       └── crud_memo.py     # 資料庫存取層函式 (CRUD)
+│       └── crud_memo.py     # 資料庫存取層（CRUD）
+├── frontend/
+│   ├── index.html           # 前端頁面
+│   ├── style.css            # 樣式（支援深色模式）
+│   └── app.js               # 呼叫 API、渲染列表、表單處理
 └── tests/
-    ├── __init__.py
-    ├── conftest.py          # SQLite in-memory 測試 DB 與 TestClient Fixture
-    ├── test_health.py       # 健康檢查測試端點
-    └── test_memos.py        # 備忘錄 API 實戰測試案例
+    ├── conftest.py          # SQLite in-memory 測試 DB 與 TestClient fixture
+    ├── test_health.py       # 根路徑與 health check 測試
+    ├── test_memos.py        # 建立、查詢、刪除測試
+    └── test_memos_advanced.py # 分頁、篩選、搜尋與部分更新測試
 ```
 
 ---
 
-## ⚡ 快速開始 (Quickstart)
+## 快速開始
 
 ### 1. 建立並啟用 Python 虛擬環境
 
-**Windows (PowerShell):**
+**Windows (PowerShell)：**
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
-**macOS / Linux:**
+**macOS / Linux：**
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
-
----
 
 ### 2. 安裝相依套件
 
@@ -89,38 +85,23 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
----
-
 ### 3. 設定環境變數
 
-本專案使用 `pydantic-settings` 統一管理設定（定義於 `app/core/config.py`），在應用程式啟動時會自動讀取根目錄下的 `.env` 檔案以覆蓋預設值。
+設定由 `pydantic-settings` 統一管理（定義於 `app/core/config.py`），啟動時會自動讀取根目錄的 `.env` 覆蓋預設值。
 
-從 `.env.example` 複製一份 `.env`：
-
-**Windows (PowerShell):**
-```powershell
-Copy-Item .env.example .env
-```
-
-**macOS / Linux:**
 ```bash
 cp .env.example .env
 ```
 
-#### ⚙️ 環境變數清單與說明
+Windows (PowerShell) 請改用 `Copy-Item .env.example .env`。
 
 | 變數名稱 | 預設值 | 說明 |
 | :--- | :--- | :--- |
-| `PROJECT_NAME` | `政大通備忘錄系統` | 專案名稱，用於 API 根目錄訊息與 Swagger / OpenAPI 文件標題 |
+| `PROJECT_NAME` | 見 `app/core/config.py` | 專案名稱，用於根路徑訊息與 Swagger / OpenAPI 文件標題 |
 | `API_V1_STR` | `/api/v1` | API v1 路由前綴（例如 `/api/v1/memos`） |
-| `DATABASE_URL` | `sqlite:///./sql_app.db` | 資料庫連線字串。支援 SQLite、PostgreSQL、MySQL 等 SQLAlchemy 連線 URL |
+| `DATABASE_URL` | `sqlite:///./sql_app.db` | 資料庫連線字串，支援 SQLite、PostgreSQL、MySQL 等 SQLAlchemy URL |
 
-> 💡 **補充說明**：
-> - **開箱即用**：若未建立 `.env` 檔案，專案仍會自動採用 `config.py` 中的預設值（使用本地 SQLite 資料庫），不會造成啟動失敗。
-> - **環境隔離**：在不同環境（如本機開發、測試機或正式部署）切換資料庫或修改設定時，只需調整 `.env` 檔案，無須修改任何 Python 程式碼。
-
-
----
+沒有建立 `.env` 也能啟動，會直接使用 `config.py` 的預設值（本地 SQLite）。
 
 ### 4. 啟動開發伺服器
 
@@ -128,169 +109,210 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-伺服器啟動後即可存取：
-- **服務首頁**：[http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- **健康檢查**：[http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
-- **互動式 API 文件 (Swagger UI)**：[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-- **Redoc API 文件**：[http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
-- **前端頁面**：[http://127.0.0.1:8000/app/](http://127.0.0.1:8000/app/)（純 HTML/CSS/JS，原始碼在 `frontend/`，由 FastAPI 直接掛載，不需另外建置）
+啟動後可以開啟：
 
----
+| 頁面 | 網址 |
+| :--- | :--- |
+| 前端頁面 | http://127.0.0.1:8000/app/ |
+| Swagger UI | http://127.0.0.1:8000/docs |
+| ReDoc | http://127.0.0.1:8000/redoc |
+| Health check | http://127.0.0.1:8000/health |
+| 根路徑 | http://127.0.0.1:8000/ |
 
-### 5. 執行自動化測試
+### 5. 執行測試
 
 ```bash
 pytest
 ```
 
-若需輸出詳細資訊：
+需要詳細輸出時：
 ```bash
 pytest -v -s
 ```
 
 ---
 
-## 🎯 新人實戰任務與待實作檔案清單
+## 前端
 
-專案已預先建置好資料庫模型（`app/models/memo.py`）與測試環境配置（`tests/conftest.py`）。新手需依序完成以下 4 個核心檔案的實作：
+前端位於 `frontend/`，由 `app/main.py` 透過 FastAPI `StaticFiles` 掛載在 `/app`，與 API 同源，因此不需要設定 CORS，也不需要 `npm install`。
 
-| 任務編號 | 待實作檔案 | 職責與實作內容 |
-| :---: | :--- | :--- |
-| **任務 1** | [`app/schemas/memo.py`](file:///d:/ProgramingProject/NCCUpass/nccupass-memo-service/app/schemas/memo.py) | **Pydantic Schemas 定義**：定義 `MemoBase`, `MemoCreate`, `MemoUpdate`, `MemoResponse`, `MemoListResponse` 模型與欄位驗證。 |
-| **任務 2** | [`app/crud/crud_memo.py`](file:///d:/ProgramingProject/NCCUpass/nccupass-memo-service/app/crud/crud_memo.py) | **資料庫存取層 (CRUD)**：實作 `create_memo`, `get_memo`, `get_memos`（支援分頁、完成狀態篩選、關鍵字搜尋）、`update_memo`, `delete_memo`。 |
-| **任務 3** | [`app/api/v1/endpoints/memos.py`](file:///d:/ProgramingProject/NCCUpass/nccupass-memo-service/app/api/v1/endpoints/memos.py) | **API 路由端點**：實作 RESTful API 端點（`POST /`, `GET /`, `GET /{id}`, `PATCH /{id}`, `DELETE /{id}`），搭配 HTTP 狀態碼與 404 異常處理。 |
-| **任務 4** | [`tests/test_memos.py`](file:///d:/ProgramingProject/NCCUpass/nccupass-memo-service/tests/test_memos.py) | **自動化測試案例**：使用 `pytest` 與 `client` (TestClient) 撰寫新增、查詢、更新、刪除及邊界情況（404 等）之測試案例。 |
+功能：
 
-### 🛠️ 建議實作流程
+- 新增、編輯、刪除備忘錄，勾選切換完成狀態
+- 關鍵字搜尋（輸入停頓 300ms 後送出）
+- 依完成狀態篩選
+- 分頁，每頁 10 筆
+- 顯示後端回傳的驗證錯誤，以及 `/health` 連線狀態
+- 跟隨系統設定切換深色模式
 
-```text
-[步驟 1] app/schemas/memo.py      ➔ 定義資料輸入與輸出結構 (Pydantic)
-   ⬇
-[步驟 2] app/crud/crud_memo.py    ➔ 撰寫 SQLAlchemy 資料庫查詢與操作邏輯
-   ⬇
-[步驟 3] app/api/v1/endpoints/memos.py ➔ 串接 Router、依賴注入 (get_db) 與 HTTP 錯誤處理
-   ⬇
-[步驟 4] tests/test_memos.py      ➔ 撰寫測試案例並執行 pytest 驗證所有測試綠燈
-```
+SQLite 的 `CURRENT_TIMESTAMP` 是 UTC 但不帶時區資訊，前端會補上 `Z` 再轉成本地時間顯示。
 
 ---
 
-## 📋 備忘錄系統 API 規格書 (API Specification)
+## API 規格
 
 - **Base URL**：`http://localhost:8000/api/v1`
 - **Content-Type**：`application/json; charset=utf-8`
 
+### 欄位
+
+| 欄位 | 型別 | 說明 |
+| :--- | :--- | :--- |
+| `id` | integer | 唯一識別碼，自動產生 |
+| `title` | string | 必填，1 到 100 字 |
+| `content` | string \| null | 選填，詳細內容 |
+| `priority` | integer | 1（低）到 5（高），預設 `3` |
+| `is_completed` | boolean | 預設 `false` |
+| `created_at` | datetime | 建立時間（UTC） |
+| `updated_at` | datetime | 最後更新時間（UTC） |
+
 ### 1. 建立備忘錄
-- **Endpoint**: `POST /memos`
-- **Status Code**: `201 Created`
-- **Request Body**:
+
+- **Endpoint**：`POST /memos/`
+- **Status Code**：`201 Created`
+- **Request Body**：
   ```json
   {
-    "title": "資結期末專案討論",
+    "title": "期末專案討論",
     "content": "討論後端架構設計與 ER Model",
     "priority": 4
   }
   ```
-- **Response (201 Created)**:
+- **Response**：
   ```json
   {
     "id": 10,
-    "title": "資結期末專案討論",
+    "title": "期末專案討論",
     "content": "討論後端架構設計與 ER Model",
     "priority": 4,
     "is_completed": false,
-    "created_at": "2026-09-07T14:30:00Z",
-    "updated_at": "2026-09-07T14:30:00Z"
+    "created_at": "2026-09-07T14:30:00",
+    "updated_at": "2026-09-07T14:30:00"
   }
   ```
 
----
+### 2. 查詢備忘錄列表
 
-### 2. 查詢備忘錄列表 (分頁與過濾)
-- **Endpoint**: `GET /memos`
-- **Status Code**: `200 OK`
-- **Query Parameters**:
-  - `skip` (整數，預設 `0`)：跳過前幾筆
-  - `limit` (整數，預設 `20`，最大 `100`)：取得筆數
-  - `is_completed` (布林值，選填)：`true` 或 `false`
-  - `search` (字串，選填)：搜尋標題或內容關鍵字
-- **Response (200 OK)**:
+- **Endpoint**：`GET /memos/`
+- **Status Code**：`200 OK`
+- **Query Parameters**：
+  - `skip`（整數，預設 `0`）：跳過前幾筆
+  - `limit`（整數，預設 `20`，範圍 1 到 100）：取得筆數
+  - `is_completed`（布林值，選填）：`true` 或 `false`
+  - `search`（字串，選填）：搜尋標題或內容關鍵字
+- **Response**：
   ```json
   {
     "total": 1,
     "items": [
       {
         "id": 10,
-        "title": "資結期末專案討論",
+        "title": "期末專案討論",
         "content": "討論後端架構設計與 ER Model",
         "priority": 4,
         "is_completed": false,
-        "created_at": "2026-09-07T14:30:00Z",
-        "updated_at": "2026-09-07T14:30:00Z"
+        "created_at": "2026-09-07T14:30:00",
+        "updated_at": "2026-09-07T14:30:00"
       }
     ]
   }
   ```
 
----
-
 ### 3. 取得單筆備忘錄
-- **Endpoint**: `GET /memos/{id}`
-- **Path Parameter**: `id` (整數)
-- **Status Code**: `200 OK`（找不到時回傳 `404 Not Found`）
-- **Response (200 OK)**:
-  ```json
-  {
-    "id": 10,
-    "title": "資結期末專案討論",
-    "content": "討論後端架構設計與 ER Model",
-    "priority": 4,
-    "is_completed": false,
-    "created_at": "2026-09-07T14:30:00Z",
-    "updated_at": "2026-09-07T14:30:00Z"
-  }
-  ```
 
----
+- **Endpoint**：`GET /memos/{id}`
+- **Status Code**：`200 OK`，找不到時回傳 `404 Not Found`
+- **Response**：與建立備忘錄的回應格式相同
 
-### 4. 更新備忘錄 (部分更新)
-- **Endpoint**: `PATCH /memos/{id}`
-- **Path Parameter**: `id` (整數)
-- **Status Code**: `200 OK`（找不到時回傳 `404 Not Found`）
-- **Request Body** (所有欄位皆選填):
+### 4. 部分更新備忘錄
+
+- **Endpoint**：`PATCH /memos/{id}`
+- **Status Code**：`200 OK`，找不到時回傳 `404 Not Found`
+- **Request Body**：所有欄位皆選填，只更新有傳入的欄位。`title`、`priority`、`is_completed` 不可設為 `null`（回傳 `422`）。
   ```json
   {
     "is_completed": true,
     "priority": 2
   }
   ```
-- **Response (200 OK)**:
-  ```json
-  {
-    "id": 10,
-    "title": "資結期末專案討論",
-    "content": "討論後端架構設計與 ER Model",
-    "priority": 2,
-    "is_completed": true,
-    "created_at": "2026-09-07T14:30:00Z",
-    "updated_at": "2026-09-07T15:10:00Z"
-  }
-  ```
-
----
+- **Response**：更新後的完整備忘錄
 
 ### 5. 刪除備忘錄
-- **Endpoint**: `DELETE /memos/{id}`
-- **Path Parameter**: `id` (整數)
-- **Status Code**: `204 No Content`（找不到時回傳 `404 Not Found`）
-- **Response**: 無回傳 Body
+
+- **Endpoint**：`DELETE /memos/{id}`
+- **Status Code**：`204 No Content`，找不到時回傳 `404 Not Found`
+- **Response**：無 body
 
 ---
 
-## 💡 開發規範與建議
+## 開發規範
 
-1. **型別標註 (Type Hints)**：所有函式參數與回傳值均需標註清晰型別。
-2. **錯誤處理**：在 Router 層找不到資源時，一律使用 `raise HTTPException(status_code=404, detail="...")`。
-3. **資料庫交易**：在 CRUD 層進行 `db.commit()` 與 `db.refresh()`，並由依賴注入 `get_db()` 在請求結束時關閉連線。
-4. **測試覆蓋**：每次新增功能後，務必執行 `pytest` 確保所有測試案例皆能綠燈通過！
+### 程式碼
 
+1. 所有函式參數與回傳值都要標註型別（type hints）。
+2. Router 層找不到資源時，一律 `raise HTTPException(status_code=404, detail="...")`。
+3. 在 CRUD 層執行 `db.commit()` 與 `db.refresh()`，連線由 `get_db()` 在請求結束時關閉。
+4. 新增功能後執行 `pytest`，確認全部通過。
+
+### Commit 訊息
+
+遵守 [Conventional Commits](https://www.conventionalcommits.org/)：
+
+```text
+<type>(<optional scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+| Type | 用途 | 範例 |
+| :--- | :--- | :--- |
+| `feat` | 新增功能 | `feat(memo): add pagination support to list memos` |
+| `fix` | 修復 bug | `fix(auth): handle expired token with 401 response` |
+| `docs` | 只修改文件 | `docs: update API specification for memo patch endpoint` |
+| `style` | 不影響邏輯的格式調整 | `style: format python code with black` |
+| `refactor` | 重構，不是新功能也不是修 bug | `refactor(db): extract database session dependency` |
+| `perf` | 提升效能 | `perf(query): add database index on memo title` |
+| `test` | 新增或修改測試 | `test(memo): add unit test for deleting non-existent memo` |
+| `chore` | 建置流程、相依套件、輔助工具 | `chore(deps): upgrade fastapi to 0.110.0` |
+| `ci` | CI/CD 腳本調整 | `ci: add pytest automated testing workflow` |
+
+- description 以動詞開頭，使用繁體中文或英文祈使句。
+- 一個 commit 只做一件事，修 bug、改排版、加功能要分開 commit。
+- 不使用 `update`、`fix bug`、`wip` 這類沒有資訊量的訊息。
+- 變更較多時在 body 條列重點；有關聯 issue 時在 footer 註明，例如 `Closes #14`。
+
+### Pull Request
+
+PR 描述包含以下三個區塊：
+
+```markdown
+### 變更摘要 (Summary)
+- （條列本次變更重點）
+
+### 關聯 Issue (Related Issues)
+- Closes #（issue 編號）
+
+### 驗證方式與成果 (Testing & Screenshots)
+- [ ] （測試項目與結果）
+```
+
+只勾選實際完成的項目。送出 PR 前確認：
+
+- [ ] 程式碼已用 formatter 格式化（例如 `black`）
+- [ ] 沒有遺留 `print()`、測試用 hardcoded 資料或機密資訊（`.env`）
+- [ ] `pytest` 全部通過
+- [ ] 分支已與最新的 `main` 同步，沒有 merge conflict
+
+### Code Review
+
+review 留言前加上意圖標籤，並依嚴重程度排序：
+
+| 標籤 | 用途 |
+| :--- | :--- |
+| `[blocker]` | 嚴重 bug、安全性問題或邏輯錯誤，修正後才能 merge |
+| `[suggestion]` | 非強制的改善建議 |
+| `[question]` | 想了解設計考量 |
+| `[nitpick]` / `[nit]` | 命名、錯字等小細節 |
+| `[praise]` | 給予肯定 |
