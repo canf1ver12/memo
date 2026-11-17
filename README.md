@@ -133,6 +133,7 @@ uvicorn app.main:app --reload
 - **健康檢查**：[http://127.0.0.1:8000/health](http://127.0.0.1:8000/health)
 - **互動式 API 文件 (Swagger UI)**：[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 - **Redoc API 文件**：[http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+- **前端頁面**：[http://127.0.0.1:8000/app/](http://127.0.0.1:8000/app/)（純 HTML/CSS/JS，原始碼在 `frontend/`，由 FastAPI 直接掛載，不需另外建置）
 
 ---
 
