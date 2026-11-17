@@ -11,9 +11,10 @@
 # 4. update_memo: 部分更新備忘錄內容 (PATCH)
 # 5. delete_memo: 刪除指定的備忘錄
 
+from sqlalchemy import select, func, or_
 from sqlalchemy.orm import Session
 from app.models.memo import Memo
-from app.schemas.memo import MemoCreate
+from app.schemas.memo import MemoCreate, MemoUpdate
 
 
 def create_memo(db: Session, memo_in: MemoCreate) -> Memo:
@@ -38,3 +39,42 @@ def delete_memo(db: Session, memo_id: int) -> bool:
     db.delete(be_deleted_memo)
     db.commit()
     return True
+
+
+def get_memos(
+    db: Session,
+    skip: int = 0,
+    limit: int = 20,
+    is_completed: bool | None = None,
+    search: str | None = None,
+) -> tuple[int, list[Memo]]:
+    stmt = select(Memo)
+
+    if is_completed is not None:
+        stmt = stmt.where(Memo.is_completed == is_completed)
+    if search:
+        stmt = stmt.where(
+            or_(Memo.title.contains(search), Memo.content.contains(search))
+        )
+
+    total_num = db.scalar(select(func.count()).select_from(stmt.subquery()))
+
+    stmt = stmt.offset(skip)
+    stmt = stmt.limit(limit)
+    stmt = stmt.order_by(Memo.id)
+
+    items = db.scalars(stmt).all()
+
+    return total_num, list(items)
+
+
+def update_memo(db: Session, db_memo: Memo, memo_in: MemoUpdate) -> Memo:
+    update_content = memo_in.model_dump(exclude_unset=True)  # 只拿有動的欄位
+
+    for key, value in update_content.items():
+        setattr(db_memo, key, value)
+
+    db.commit()
+    db.refresh(db_memo)
+
+    return db_memo

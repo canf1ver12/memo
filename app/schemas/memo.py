@@ -11,7 +11,7 @@
 # 4. MemoResponse: 單筆備忘錄的 API Response 資料模型（需設定 ConfigDict(from_attributes=True)）
 # 5. MemoListResponse: 多筆清單與分頁的回應資料模型（包含 total 總筆數與 items 列表）
 from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 
 class MemoBase(BaseModel):
@@ -32,3 +32,24 @@ class MemoResponse(MemoBase):
     id: int
     created_at: datetime
     updated_at: datetime
+
+
+class MemoUpdate(BaseModel):
+    title: str | None = Field(
+        None, min_length=1, max_length=100, description="title of the memo"
+    )
+    content: str | None = Field(None, description="content of the memo")
+    priority: int | None = Field(None, ge=1, le=5)
+    is_completed: bool | None = None  # 預設是不改而不是塞新資訊進去
+
+    @field_validator("title", "priority", "is_completed")
+    @classmethod
+    def check_null(cls, value: str | int | bool | None) -> str | int | bool:
+        if value is None:
+            raise ValueError("can't be assigned to None")
+        return value
+
+
+class MemoListResponse(BaseModel):
+    total: int
+    items: list[MemoResponse]
